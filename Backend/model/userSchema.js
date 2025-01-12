@@ -11,25 +11,27 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    bio:{
+    bio: {
         type: String,
     },
-    profilePic:{
-        type:String,
+    profilePic: {
+        type: String,
     },
-    dob:{
-        type:String
+    dob: {
+        type: String
     },
-    role:{
-        type:String,
-        required:true,
+    role: {
+        type: String,
+        default: "1" // 1 for user, 2 for admin
     },
-    user_id:{
-        type:String,
-        required:true
+    user_id: {
+        type: String,
+    },
+    token: {
+        type: String,
     }
-},{
-    timestamps:true
+}, {
+    timestamps: true
 });
 
 userSchema.pre('save', async function (next) {

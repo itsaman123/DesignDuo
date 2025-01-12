@@ -1,58 +1,126 @@
-const User = require('../model/userSchema'); // Import your User model
+const User = require('../model/userSchema');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const responseStruct = require("../helper/responseStructure")
 
-const Register = async (req, res) => {
+// const Register = async (data, cb) => {
+//     try {
+//         const { name, email, password } = data.body;
+
+//         const hashedPassword = await bcrypt.hash(password, 10);
+//         const user = new User({ name, email, password: hashedPassword });
+//         await user.save();
+//         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+
+//         // res.status(201).json({ user, token });
+//         return cb(
+//             null,
+//             responseStruct
+//                 .merge({
+//                     action: 'user_registration',
+//                     status: 200,
+//                     success: true,
+//                     message: "success",
+//                     data: {
+//                         token: token
+//                     }
+//                 })
+//         )
+//     } catch (err) {
+//         return cb(
+//             responseStruct
+//                 .merge({
+//                     action: "user_registration",
+//                     status: 400,
+//                     success: false,
+//                     message: err.message
+//                 })
+//                 .toJS(),
+//         )
+//     }
+// };
+
+
+const Register = async (data, cb) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password } = data.body;
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
         const user = new User({ name, email, password: hashedPassword });
         await user.save();
-
-        // Generate auth token
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+        await User.updateOne({email:email}, {$set:{token:token}});
 
-        res.status(201).json({ user, token });
+        return cb(null, {
+            action: "user_registration",
+            status: 200,
+            success: true,
+            message: "User registered successfully",
+            data: { token },
+        });
     } catch (err) {
-        res.status(400).json({ error: 'Registration failed', details: err.message });
+        return cb({
+            action: "user_registration",
+            status: 400,
+            success: false,
+            message: err.message,
+        });
     }
 };
 
-const Login = async (req, res) => {
+
+const Login = async (data, cb) => {
     try {
-        const { email, password } = req.body;
-
-        // Validate input
+        const { email, password } = data.body;
         if (!email || !password) {
-            return res.status(400).send("Email and password are required.");
+            return cb({
+                action: "user_login",
+                status: 400,
+                success: false,
+                message: err.message
+            });
         }
-
-        // Find the user by email
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).send("Invalid email or password.");
+            return cb({
+                action: "user_login",
+                status: 400,
+                success: false,
+                message: "Email and password are required."
+            });
         }
-
-        // Check if the password matches
         const passwordMatch = await user.comparePassword(password);
         if (!passwordMatch) {
-            return res.status(401).send("Invalid email or password.");
-        }
-
-        // Generate a token
+            return cb({
+                action: "user_login",
+                status: 400,
+                success: false,
+                message: "password doesn't match"
+            });        }
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '1h', // 1 hour
+            expiresIn: '1h',
         });
-
-        // Send the token
-        return res.status(200).json({ token });
+        return cb(
+            null,
+            ({
+                action: 'user_login',
+                status: 200,
+                success: true,
+                message: "success",
+                data: {
+                    token: token
+                }
+            })
+        )
     } catch (err) {
         console.error(err);
-        return res.status(500).send("Internal Server Error");
+        return cb({
+            action: "user_login",
+            status: 400,
+            success: false,
+            message: err.message
+        });
+
     }
 };
 
