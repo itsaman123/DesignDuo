@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { Register, Login } = require('../controller/user');
+const { Register, Login, Logout } = require('../controller/user');
 const authenticate = require('../middleware/authenticate');
 const router = Router();
 
@@ -23,6 +23,19 @@ router.post('/v1/login', (req,res)=>{
     data.params=req.params;
     data.body=req.body;
     Login(data,(err, response)=>{
+        if(err){
+            return res.status(err.status).send(err)
+        }
+        return res.status(response.status).send(response);
+    })
+});
+
+router.post('/v1/logout', (req,res)=>{
+    const data={...req.query, ...req.params, ...req.body};
+    data.req=req.data;
+    data.params=req.params;
+    data.body=req.body;
+    Logout(data,(err, response)=>{
         if(err){
             return res.status(err.status).send(err)
         }
