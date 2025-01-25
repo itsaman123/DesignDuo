@@ -2,17 +2,12 @@ import { useState } from 'react'
 import { Stack, Typography, Button, TextField } from '@mui/material';
 import Auth from '../api/user';
 import { Link } from 'react-router-dom';
-const Register = () => {
-    const [name, setName] = useState<string>('');
+const Login = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
     const handleSubmit = () => {
-        if (name.length <= 0) {
-            alert(`name is required`);
-            return;
-        }
-        else if (email.length <= 0) {
+        if (email.length <= 0) {
             alert(`email is required`);
             return;
         }
@@ -21,12 +16,11 @@ const Register = () => {
             return;
         }
         const data = {
-            name,
             email,
             password
         }
         console.log(data);
-        Auth.register({
+        Auth.login({
             ...Headers,
             userData: data
         })
@@ -40,23 +34,17 @@ const Register = () => {
                     alert("Error")
                 }
             })
-
-
     }
     return (
         <>
-            <Stack 
+            <Stack
                 sx={style.StackContainer}
             >
                 <>
-                    <Typography variant='h4'>Register</Typography>
+                    <Typography variant='h4'>Login</Typography>
                 </>
                 <Stack direction="column" spacing={2} width="20rem">
-                    <TextField
-                        placeholder='Enter Name'
-                        onChange={(e) => setName(e.target.value)}
-                        value={name}
-                    />
+
                     <TextField
                         placeholder='Enter Email'
                         onChange={(e) => { setEmail(e.target.value) }}
@@ -68,11 +56,10 @@ const Register = () => {
                         value={password}
                     />
                     <span>
-
-                    Already have an account?<Link to={"/login"}> Login here</Link>
+                        Don't have an account? <Link to={"/register"}> Register here</Link>
                     </span>
 
-                    <Button variant='outlined' onClick={handleSubmit}>Register</Button>
+                    <Button variant='outlined' onClick={handleSubmit}>Login</Button>
                 </Stack>
 
             </Stack>
@@ -80,15 +67,14 @@ const Register = () => {
     )
 }
 
-export default Register
+export default Login
 
-
-const style={
-    StackContainer:{
-        justifyContent:"center",
-        alignItems:'center',
-        textAlign:'center',
-        alignContent:'center',
-        marginTop:'130px',
+const style = {
+    StackContainer: {
+        justifyContent: "center",
+        alignItems: 'center',
+        textAlign: 'center',
+        alignContent: 'center',
+        marginTop: '130px',
     }
 }

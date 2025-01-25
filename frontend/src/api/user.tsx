@@ -31,6 +31,7 @@ export default class Auth{
     static login(values:unknown){
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const payload:any=values;
+        console.log(payload)
         return new Promise((resolve)=>{
             instance
             .post('users/v1/login', payload.data)

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Stack, Box, Typography, Button, TextField } from "@mui/material";
 import "./style.css";
 import Navbar from "../Navbar";
+import UserPostDetails from "./UserPostDetails";
 
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -46,18 +47,7 @@ const Profile = () => {
                 }}
             ></Box>
             <Box
-                sx={{
-                    display: "flex",
-                    background: "#FFFFFF",
-                    width: "80%",
-                    height: "14rem",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    margin: "auto",
-                    position: "absolute",
-                    top: "140px",
-                    left: "100px",
-                }}
+                sx={style.containerBox}
             >
                 <Stack
                     sx={{
@@ -108,15 +98,7 @@ const Profile = () => {
 
                         {/* Profile Image */}
                         <Box
-                            sx={{
-                                position: "relative",
-                                display: "inline-block",
-                                borderRadius: "50%",
-                                overflow: "hidden",
-                                width: "100px",
-                                height: "100px",
-                                margin: "0 auto",
-                            }}
+                            sx={style.imageContainer}
                         >
                             <img
                                 src={image}
@@ -196,8 +178,33 @@ const Profile = () => {
                     </Box>
                 </Stack>
             </Box>
+            <UserPostDetails />
         </>
     );
 };
 
 export default Profile;
+                                                                                                                                                          
+const style = {
+    containerBox: {
+        display: "flex",
+        background: "#FFFFFF",
+        width: "80%",
+        height: "14rem",
+        justifyContent: "center",
+        alignItems: "center",
+        margin: "auto",
+        position: "absolute",
+        top: "140px",
+        left: "100px",
+    },
+    imageContainer: {
+        position: "relative",
+        display: "inline-block",
+        borderRadius: "50%",
+        overflow: "hidden",
+        width: "100px",
+        height: "100px",
+        margin: "0 auto",
+    }
+}
