@@ -2,36 +2,38 @@ import { useState } from 'react'
 import { Stack, Typography, Button, TextField } from '@mui/material';
 import Auth from '../api/user';
 import { Link } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { showToast } from '../components/helper/Toast';
 const Login = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
     const handleSubmit = () => {
         if (email.length <= 0) {
-            alert(`email is required`);
+            showToast('error', `Email is required`);
             return;
         }
         else if (password.length <= 0) {
-            alert(`password is required`);
+            showToast('error', `Password is required`);
             return;
         }
         const data = {
             email,
             password
         }
-        console.log(data);
         Auth.login({
             ...Headers,
             userData: data
-        })
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        })            
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((res: any) => {
                 console.log(res);
                 if (res.status === 200) {
-                    alert("data added")
+                    showToast('success', "Login completed")
                 }
                 else {
-                    alert("Error")
+                    showToast('error', `Something went wrong`);
+
                 }
             })
     }
@@ -63,6 +65,7 @@ const Login = () => {
                 </Stack>
 
             </Stack>
+            <Toaster />
         </>
     )
 }

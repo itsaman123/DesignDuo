@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Stack, Typography, Button, TextField } from '@mui/material';
 import Auth from '../api/user';
 import { Link } from 'react-router-dom';
+import { showToast } from '../components/helper/Toast'
+import { Toaster } from 'react-hot-toast';
 const Register = () => {
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
@@ -9,15 +11,15 @@ const Register = () => {
 
     const handleSubmit = () => {
         if (name.length <= 0) {
-            alert(`name is required`);
+            showToast('error', `name is required`);
             return;
         }
         else if (email.length <= 0) {
-            alert(`email is required`);
+            showToast('error', `email is required`);
             return;
         }
         else if (password.length <= 0) {
-            alert(`password is required`);
+            showToast('error', `password is required`);
             return;
         }
         const data = {
@@ -34,18 +36,16 @@ const Register = () => {
             .then((res: any) => {
                 console.log(res);
                 if (res.status === 200) {
-                    alert("data added")
+                    showToast('error', "data added")
                 }
                 else {
-                    alert("Error")
+                    showToast('error', "Something went wrong")
                 }
             })
-
-
     }
     return (
         <>
-            <Stack 
+            <Stack
                 sx={style.StackContainer}
             >
                 <>
@@ -69,11 +69,12 @@ const Register = () => {
                     />
                     <span>
 
-                    Already have an account?<Link to={"/login"}> Login here</Link>
+                        Already have an account?<Link to={"/login"}> Login here</Link>
                     </span>
 
                     <Button variant='outlined' onClick={handleSubmit}>Register</Button>
                 </Stack>
+                <Toaster />
 
             </Stack>
         </>
@@ -83,12 +84,12 @@ const Register = () => {
 export default Register
 
 
-const style={
-    StackContainer:{
-        justifyContent:"center",
-        alignItems:'center',
-        textAlign:'center',
-        alignContent:'center',
-        marginTop:'130px',
+const style = {
+    StackContainer: {
+        justifyContent: "center",
+        alignItems: 'center',
+        textAlign: 'center',
+        alignContent: 'center',
+        marginTop: '130px',
     }
 }

@@ -1,154 +1,105 @@
-const User = require('../model/userSchema');
+const user = require('../model/userSchema');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const responseStruct = require("../helper/responseStructure")
-
-// const Register = async (data, cb) => {
-//     try {
-//         const { name, email, password } = data.body;
-
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         const user = new User({ name, email, password: hashedPassword });
-//         await user.save();
-//         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-
-//         // res.status(201).json({ user, token });
-//         return cb(
-//             null,
-//             responseStruct
-//                 .merge({
-//                     action: 'user_registration',
-//                     status: 200,
-//                     success: true,
-//                     message: "success",
-//                     data: {
-//                         token: token
-//                     }
-//                 })
-//         )
-//     } catch (err) {
-//         return cb(
-//             responseStruct
-//                 .merge({
-//                     action: "user_registration",
-//                     status: 400,
-//                     success: false,
-//                     message: err.message
-//                 })
-//                 .toJS(),
-//         )
-//     }
-// };
-
 
 const Register = async (data, cb) => {
     try {
         const { name, email, password } = data.body;
-        
-        const userExist=await User.findOne({email});
-        // console.log(userExist)
 
-        if(userExist){
-            console.log("first")
+        if (!name || !email || !password) {
+            return cb({
+                action: "user_registration",
+                status: 400,
+                success: false,
+                message: "All fields are required",
+            });
+        }
+
+        const existingUser = await user.findOne({ email });
+        if (existingUser) {
             return cb(null, {
                 action: "user_registration",
                 status: 400,
-                success: true,
-                message: "User already Exist"
+                success: false,
+                message: "User already exists",
             });
-
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ name, email, password: hashedPassword });
-        await user.save();
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-        await User.updateOne({email:email}, {$set:{token:token}});
-
+        const newUser = new user({ name, email, password });
+        await newUser.save();
         return cb(null, {
             action: "user_registration",
             status: 200,
             success: true,
             message: "User registered successfully",
-            data: { token },
         });
-    } catch (err) {
+    } catch (e) {
+        console.error('Error in registration:', e);
         return cb({
             action: "user_registration",
-            status: 400,
+            status: 500,
             success: false,
-            message: err.message,
+            message: "Internal server error",
         });
     }
 };
-
 
 const Login = async (data, cb) => {
     try {
         const { email, password } = data.body;
 
-        // Validate input
         if (!email || !password) {
             return cb({
                 action: "user_login",
                 status: 400,
                 success: false,
-                message: "Email and password are required.",
+                message: "All fields are required",
             });
         }
 
-        // Find user by email
-        const user = await User.findOne({ email });
-        // console.log(user);
-        if (!user) {
-            return cb({
+        const foundUser = await user.findOne({ email });
+        if (!foundUser) {
+            return cb(null, {
                 action: "user_login",
                 status: 400,
                 success: false,
-                message: "Invalid email or password.",
+                message: "User not found",
             });
         }
 
-        // Verify password
-        const passwordMatch = await user.comparePassword(password);
-        console.log(passwordMatch)
+        const passwordMatch = await foundUser.comparePassword(password);
         if (!passwordMatch) {
-            return cb({
+            return cb(null, {
                 action: "user_login",
                 status: 400,
                 success: false,
-                message: "Invalid email or password.",
+                message: "Invalid email or password",
             });
         }
 
-        // Generate a new token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ userId: foundUser._id }, process.env.JWT_SECRET, {
             expiresIn: '1h',
         });
-
-        // Optionally store the token in the database
-        await User.updateOne({ email }, { $set: { token } });
 
         return cb(null, {
             action: "user_login",
             status: 200,
             success: true,
             message: "Login successful",
-            data: { token },
+            data: {
+                token,
+            },
         });
-    } catch (err) {
-        console.error(err);
+    } catch (e) {
+        console.error('Error in login:', e);
         return cb({
             action: "user_login",
             status: 500,
             success: false,
-            message: "Internal server error.",
+            message: "Internal server error",
         });
     }
 };
-
-
-
 const Logout = async (data, cb) => {
     try {
         const { email } = data.body;
@@ -163,7 +114,7 @@ const Logout = async (data, cb) => {
         }
 
         // Find and update user, clearing the token
-        const user = await User.findOneAndUpdate(
+        const user = await user.findOneAndUpdate(
             { email },
             { $unset: { token: "" } },
             { new: true }
