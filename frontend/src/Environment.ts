@@ -25,6 +25,9 @@ const getEnvironment=()=>{
     if(window.location.href.includes('local')){
         env='local';
     }
+    else{
+        env='production'
+    }
     return _Environment[env];
 }
 
