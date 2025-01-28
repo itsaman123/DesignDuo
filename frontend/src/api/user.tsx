@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
-
+import Environment from '../Environment';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const instance: any = axios.create({
-    baseURL: 'http://localhost:3000/',
+    baseURL: Environment.USER_URL,
     headers: { 'Content-Type': 'application/json' }
 });
 
@@ -24,7 +24,7 @@ export default class Auth {
     static login(values: any) {
         return new Promise((resolve) => {
             instance
-                .post('user/v1/login', values.userData) // Pass `values` directly
+                .post('user/v1/login', values.userData)
                 .then(function (response: unknown) {
                     resolve(response);
                 })
