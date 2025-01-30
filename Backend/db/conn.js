@@ -2,9 +2,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 const DB = process.env.MONGO_URI;
-console.log(DB)
 
-const conn = mongoose.connect('mongodb://localhost:27017/blogsite')
+const conn = mongoose.connect(DB)
     .then(() => {
         console.log("Mongodb Connected")
     })
